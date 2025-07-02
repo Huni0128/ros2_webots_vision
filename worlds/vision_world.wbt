@@ -1,62 +1,53 @@
 #VRML_SIM R2025a utf8
 
+# — 기본 배경·오브젝트 PROTO는 원격 URL 그대로 사용
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/WoodenBox.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/Panda.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/nvidia/jetbot/protos/JetBotRaspberryPiCamera.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/PandaHand.proto"
 
-WorldInfo {
-}
+# — Panda와 PandaHand만 로컬 PROTO로
+EXTERNPROTO "../protos/panda/Panda.proto"
+EXTERNPROTO "../protos/panda/PandaHand.proto"
+
+# — JetBot 카메라만 원격 PROTO로
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/nvidia/jetbot/protos/JetBotRaspberryPiCamera.proto"
+
+WorldInfo { }
+
 Viewpoint {
-  orientation -0.04925002254764562 0.047762791491795735 0.9976437996739957 2.821196003512569
-  position 3.186194146491184 -0.7586899869639527 0.7221896659582654
+  orientation -0.0764 0.0712 0.9945 2.4567
+  position    2.6552 -1.7998 0.9471
 }
-TexturedBackground {
-}
-TexturedBackgroundLight {
-}
+
+TexturedBackground { }
+TexturedBackgroundLight { }
+
 RectangleArena {
-  floorSize 4 4
+  floorSize     4 4
   floorTileSize 1 1
 }
+
 Table {
   translation 0.6 0 0.01
-  size 0.5 0.9 0.3
+  size        0.5 0.9 0.3
 }
+
 WoodenBox {
   translation 0.6 0 0.35
-  size 0.06 0.06 0.06
+  size        0.06 0.06 0.06
 }
+
 Panda {
-  hidden translation_1 -5.826670223904595e-06 -1.7598990110882784e-07 -0.0005521057041557517
-  hidden rotation_1 -0.030377961118306682 0.9995384832075508 8.089691844883442e-06 0.00011665779041413176
-  hidden position_1_0 -9.620750453243995e-05
-  hidden rotation_2 0 0 -1 9.620750522170995e-05
-  hidden position_2_0 5.9020950199701136e-05
-  hidden rotation_3 -0.9999999991291315 2.951048472659164e-05 2.9510475082717402e-05 1.570796000870868
-  hidden position_3_0 9.562096012119923e-05
-  hidden rotation_4 0.9999999977141573 -4.781049561196488e-05 4.7810479987741445e-05 1.5707960022858425
-  hidden position_4_0 -1.7708443943378445
-  hidden rotation_5 0.5660927778517585 0.5828974626125359 -0.5828975166733401 2.1113626930090694
-  hidden position_5_0 -1.600043670073536
-  hidden rotation_6 -0.999999999523231 -2.1835043896518033e-05 -2.183503676107468e-05 1.570796000476769
-  hidden position_6_0 1.5999954023757978
-  hidden rotation_7 0.5661119989554785 -0.5828882511688611 0.5828880606839865 2.1113342570481213
-  hidden position_7_0 0.7899999002490009
-  hidden rotation_8 0.8614191235247727 -0.35913589205541285 0.3591357746916551 1.7194199080912613
-  hidden position_9_0 -1.1520279458042303e-11
-  hidden position_9_1 1.948601168350259e-11
-  controller "camera_viewer"
+  translation 0 0 0
+  rotation    0 0 1 0
+  controller  "panda_controller"
   endEffectorSlot [
-    DEF GRIPPER PandaHand {
-    }
-    JetBotRaspberryPiCamera {
+    PandaHand { }                # ← your LOCAL PandaHand.proto now drives both geometry and sliders
+    JetBotRaspberryPiCamera {    # camera slot
       translation 0 0 0.06
-      rotation 0 -1 0 1.5707963267948968
+      rotation    0 -1 0 1.5708
       fieldOfView 2
     }
   ]

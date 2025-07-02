@@ -3,6 +3,11 @@ build/
 install/
 log/
 
+# Controllers build artifacts
+**/build/
+**/release/
+**/panda_controller
+
 # Python / CMake / VSCode
 __pycache__/
 *.pyc
@@ -11,24 +16,29 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# Webots cache
+# C/C++ object & dependency files
+*.o
+*.d
+
+# Webots cache & temp
 *.wbo
 *.bak
 *.tmp
 cache/
 
-# 시스템 파일
+# System files
 .DS_Store
 Thumbs.db
 
-# VSCode settings (선택)
+# VSCode settings (optional)
 .vscode/
 
-# Launch logs or temporary logs
+# Launch / temporary logs
 *.log
 *.trace
 
-# 기타
+# Editor temp files
 *.swp
 *.swo
+
 *.jpg
