@@ -4,9 +4,9 @@ install/
 log/
 
 # Controllers build artifacts
-**/build/
-**/release/
-**/panda_controller
+controllers/**/build/
+controllers/**/release/
+controllers/panda_controller/panda_controller
 
 # Python / CMake / VSCode
 __pycache__/
@@ -14,7 +14,6 @@ __pycache__/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
 
 # C/C++ object & dependency files
 *.o
