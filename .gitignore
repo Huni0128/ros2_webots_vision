@@ -1,0 +1,34 @@
+# ROS2 / colcon build artifacts
+build/
+install/
+log/
+
+# Python / CMake / VSCode
+__pycache__/
+*.pyc
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Webots cache
+*.wbo
+*.bak
+*.tmp
+cache/
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# VSCode settings (선택)
+.vscode/
+
+# Launch logs or temporary logs
+*.log
+*.trace
+
+# 기타
+*.swp
+*.swo
+*.jpg
