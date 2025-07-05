@@ -2,21 +2,25 @@
 <package format="3">
   <name>ros2_panda</name>
   <version>0.1.0</version>
-  <description>Webots Panda controller integrated with ROS 2, including camera image publishing.</description>
-  <maintainer email="your_email@example.com">Your Name</maintainer>
+  <description>Webots Panda controller integrated with ROS 2, including joint control and camera publishing.</description>
+
+  <maintainer email="tlacogns@gmail.com">sch</maintainer>
   <license>MIT</license>
 
+  <!-- Build tools -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- Build-time dependencies -->
+  <!-- Build dependencies -->
   <build_depend>rclcpp</build_depend>
+  <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
 
   <!-- Execution-time dependencies -->
   <exec_depend>rclcpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
 
-  <!-- Export information -->
+  <!-- Export -->
   <export>
     <build_type>ament_cmake</build_type>
   </export>
