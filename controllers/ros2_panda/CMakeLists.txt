@@ -13,11 +13,12 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-# 실행 파일: ros2_panda (카메라 + 관절 제어 통합)
+# 실행 파일
 add_executable(ros2_panda
   src/ros2_panda.cpp
   src/camera_publisher.cpp
-  src/panda_joint_controller.cpp  # <-- 여기 포함 (별도 실행 파일 제거)
+  src/panda_joint_controller.cpp
+  src/panda_gripper_controller.cpp
 )
 
 target_include_directories(ros2_panda PRIVATE
@@ -36,9 +37,8 @@ target_link_libraries(ros2_panda
   dl
 )
 
-# 설치
-install(TARGETS
-  ros2_panda
-  RUNTIME DESTINATION lib/${PROJECT_NAME})
+add_custom_command(TARGET ros2_panda POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ros2_panda> ${CMAKE_CURRENT_SOURCE_DIR}/ros2_panda
+)
 
 ament_package()
