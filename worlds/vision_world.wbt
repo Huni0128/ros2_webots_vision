@@ -42,7 +42,7 @@ WoodenBox {
 Panda {
   translation 0 0 0
   rotation    0 0 1 0
-  controller  "panda_controller"
+  controller  "extern"
   endEffectorSlot [
     PandaHand { }                # ← your LOCAL PandaHand.proto now drives both geometry and sliders
     JetBotRaspberryPiCamera {    # camera slot
