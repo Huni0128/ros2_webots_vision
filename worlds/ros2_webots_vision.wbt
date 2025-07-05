@@ -7,11 +7,11 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/WoodenBox.proto"
 
-# — Panda와 PandaHand만 로컬 PROTO로
-EXTERNPROTO "../protos/panda/Panda.proto"
-EXTERNPROTO "../protos/panda/PandaHand.proto"
+# — Panda와 PandaHand도 원격 URL로 설정
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/Panda.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/PandaHand.proto"
 
-# — JetBot 카메라만 원격 PROTO로
+# — JetBot 카메라
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/nvidia/jetbot/protos/JetBotRaspberryPiCamera.proto"
 
 WorldInfo { }
@@ -42,10 +42,10 @@ WoodenBox {
 Panda {
   translation 0 0 0
   rotation    0 0 1 0
-  controller  "extern"
+  controller  "ros2_panda"
   endEffectorSlot [
-    PandaHand { }                # ← your LOCAL PandaHand.proto now drives both geometry and sliders
-    JetBotRaspberryPiCamera {    # camera slot
+    PandaHand { }
+    JetBotRaspberryPiCamera {
       translation 0 0 0.06
       rotation    0 -1 0 1.5708
       fieldOfView 2

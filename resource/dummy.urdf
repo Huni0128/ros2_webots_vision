@@ -1,3 +1,0 @@
-<!-- resource/dummy.urdf -->
-<robot name="dummy_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
-</robot>
