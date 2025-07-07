@@ -1,24 +1,23 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 package_name = 'pyqt_gui'
 
 setup(
     name=package_name,
     version='0.1.0',
-    packages=[package_name],
-    py_modules=[],
+    packages=find_packages(include=[package_name, f'{package_name}.*']),
     install_requires=[
         'setuptools',
     ],
     zip_safe=True,
     author='',
     author_email='',
-    description='ROS2 + PyQt5 GUI for camera & joint visualization',
+    description='ROS2 + PyQt5 GUI for camera, joint and gripper visualization',
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'gui_node = pyqt_gui.gui_node:main',
+            'gui_node = pyqt_gui.main:main',
         ],
     },
 )
