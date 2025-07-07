@@ -1,21 +1,21 @@
-# pyqt_gui/widgets/joint_state.py
-
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 class JointStateView(QTableWidget):
+    # 조인트 및 그리퍼 값을 표시하는 테이블 위젯
+
     def __init__(self):
+        # 0행 2열로 초기화, 헤더는 'Name'과 'Value'
         super().__init__(0, 2)
-        # 범용 컬럼명: Name / Value
         self.setHorizontalHeaderLabels(['Name', 'Value'])
 
     def update_states(self, names, positions):
-        """
-        names: list of joint names (e.g. ['panda_joint1', …, 'panda_finger_joint1'])
-        positions: list of corresponding values
-        """
-        count = len(names)
-        self.setRowCount(count)
-        for i, (n, p) in enumerate(zip(names, positions)):
-            self.setItem(i, 0, QTableWidgetItem(n))
-            # 단위 혼합(rad vs m)도 같이 표시하고 싶으면 여기서 포맷 변경 가능
-            self.setItem(i, 1, QTableWidgetItem(f'{p:.3f}'))
+        # 전달된 이름(names)과 값(positions)으로 테이블 갱신
+        # names: ['panda_joint1', ..., 'gripper']
+        # positions: [value1, ..., valueN]
+        row_count = len(names)
+        self.setRowCount(row_count)
+
+        for row, (name, pos) in enumerate(zip(names, positions)):
+            # 첫 열: 이름, 둘째 열: 소수점 3자리 값
+            self.setItem(row, 0, QTableWidgetItem(name))
+            self.setItem(row, 1, QTableWidgetItem(f'{pos:.3f}'))
