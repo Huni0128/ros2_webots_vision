@@ -59,7 +59,7 @@ class RosQtNode(Node):
 
     def image_cb(self, msg: Image):
         # 수신된 ROS Image 메시지를 QImage로 변환 후 콜백 호출
-        cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
         h, w, _ = cv_img.shape
         rgb = cv_img[:, :, ::-1].copy()
         from PyQt5.QtGui import QImage
