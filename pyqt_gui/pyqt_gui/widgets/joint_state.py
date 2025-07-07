@@ -1,5 +1,3 @@
-# pyqt_gui/widgets/joint_state.py
-
 import math
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
