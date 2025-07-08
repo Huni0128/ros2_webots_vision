@@ -3,6 +3,12 @@ build/
 install/
 log/
 
+# Python virtual environment
+webots_venv/
+
+# YOLOv8 models
+yolo_models/
+
 # Controllers build artifacts
 controllers/**/build/
 controllers/**/release/

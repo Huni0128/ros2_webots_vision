@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>object_detector</name>
+  <version>0.0.1</version>
+  <description>Python-based YOLOv8 object detector node</description>
+
+  <maintainer email="you@domain.com">Your Name</maintainer>
+  <license>MIT</license>
+
+  <!-- CMake → Python 스크립트 방식 -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 런타임 의존성 -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>ultralytics</exec_depend>
+
+  <export>
+    <!-- CMake 빌드 타입으로 처리 -->
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
