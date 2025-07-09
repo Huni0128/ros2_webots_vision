@@ -1,0 +1,60 @@
+#VRML_SIM R2025a utf8
+# template language: javascript
+
+PROTO GreenBox [
+  field SFVec3f    translation         0 0 0.3
+  field SFRotation rotation            0 0 1 0
+  field SFString   name                "green box"
+  field SFVec3f    size                0.6 0.6 0.6
+  field SFFloat    mass                0
+  field MFNode     immersionProperties []
+  field SFBool     locked              FALSE
+  field SFColor    color               0 1 0
+]
+{
+%<
+  let size = fields.size.value;
+  let volume = size.x * size.y * size.z;
+  let mass = fields.mass.value;
+  let color = fields.color.value;
+
+  let max_size = 3;
+  let min_size = 0.01;
+
+  size.x = Math.min(Math.max(size.x, min_size), max_size);
+  size.y = Math.min(Math.max(size.y, min_size), max_size);
+  size.z = Math.min(Math.max(size.z, min_size), max_size);
+
+  let min_mass = Math.pow(volume, 2/3);
+  let max_mass = min_mass * 1000;
+  if (mass > 0 && mass < min_mass) mass = min_mass;
+  else if (mass > max_mass) mass = max_mass;
+>%
+Solid {
+  translation IS translation
+  rotation IS rotation
+  children [
+    DEF BOX_SHAPE Shape {
+      appearance PBRAppearance {
+        baseColor %<= color.r >% %<= color.g >% %<= color.b >%
+        metalness 0
+        roughness 1
+      }
+      geometry Box {
+        size %<= size.x >% %<= size.y >% %<= size.z >%
+      }
+    }
+  ]
+  name IS name
+  model "green box"
+  immersionProperties IS immersionProperties
+  boundingObject USE BOX_SHAPE
+  %< if (mass > 0) { >%
+  physics Physics {
+    density -1
+    mass %<= mass >%
+  }
+  %< } >%
+  locked IS locked
+}
+}
