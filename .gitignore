@@ -6,8 +6,9 @@ log/
 # Python virtual environment
 webots_venv/
 
-# YOLOv8 models
-yolo_models/
+# Dataset files
+object_detector/dataset/
+!object_detector/dataset/data.yaml
 
 # Controllers build artifacts
 controllers/**/build/
@@ -48,3 +49,5 @@ Thumbs.db
 
 *.jpg
 *.jpeg
+
+

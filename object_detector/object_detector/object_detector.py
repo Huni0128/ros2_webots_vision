@@ -8,9 +8,9 @@ import numpy as np
 from rclpy.qos import qos_profile_sensor_data
 
 
-class YOLOv8Detector(Node):
+class BoxDetector(Node):
     def __init__(self):
-        super().__init__('yolov8_detector')
+        super().__init__('box_detector')
         self.bridge = CvBridge()
 
         # 이미지 구독
@@ -29,10 +29,10 @@ class YOLOv8Detector(Node):
         )
 
         # YOLO 모델 로드 (box 클래스만 포함된 커스텀 모델)
-        model_path = 'yolo_models/yolov8n.pt'
+        model_path = 'models/box_detect.pt'
         self.model = YOLO(model_path)
 
-        self.get_logger().info(f"YOLOv8 Detector initialized with model: {model_path}")
+        self.get_logger().info(f"Box Detector initialized with model: {model_path}")
 
     def image_callback(self, msg):
         try:
@@ -74,18 +74,18 @@ class YOLOv8Detector(Node):
 
                 # 결과 표시 및 퍼블리시
                 annotated = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-                cv2.imshow("YOLOv8 Color Detection", annotated)
+                cv2.imshow("Box Color Detection", annotated)
                 cv2.waitKey(1)
 
                 out_msg = self.bridge.cv2_to_imgmsg(annotated, encoding='bgr8')
                 self.publisher.publish(out_msg)
 
         except Exception as e:
-            self.get_logger().error(f'YOLO inference error: {e}')
+            self.get_logger().error(f'Inference error: {e}')
 
 def main(args=None):
     rclpy.init(args=args)
-    node = YOLOv8Detector()
+    node = BoxDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

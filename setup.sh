@@ -42,22 +42,14 @@ else
     echo "requirements.txt 파일이 존재하지 않아 Python 패키지를 생략합니다."
 fi
 
-# ─────────────────────────────────────────────────────────────────────
-# YOLOv8 모델 자동 다운로드
-YOLO_DIR="./yolo_models"
-YOLO_MODEL="$YOLO_DIR/yolov8n.pt"
-if [ ! -f "$YOLO_MODEL" ]; then
-    echo "YOLOv8 모델을 다운로드합니다 (yolov8n.pt)..."
-    mkdir -p "$YOLO_DIR"
-    python3 - <<EOF
-from ultralytics import YOLO
-# 이 한 줄로 로컬에 yolov8n.pt를 다운로드합니다
-YOLO('yolov8n.pt')
-EOF
-else
-    echo "YOLO 모델이 이미 존재합니다: $YOLO_MODEL"
-fi
-# ─────────────────────────────────────────────────────────────────────
+# YOLO 모델 안내
+echo "YOLO 모델 로드 안내:"
+echo "사용자가 학습한 커스텀 모델 파일(best.pt)을 다음 경로에 수동으로 복사하세요:"
+echo "models/best.pt"
+echo ""
+echo "예시 데이터셋:"
+echo "https://www.kaggle.com/datasets/udaysankarmukherjee/box-dataset"
+echo "※ 필요 시 다운로드하여 object_detector/dataset/에 압축 해제하세요."
 
 # rosdep 설정
 if ! command -v rosdep >/dev/null; then
@@ -100,6 +92,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 colcon build || { echo "colcon 빌드 실패"; exit 1; }
 
 # 완료
-echo -e "\n완료! 다음 명령어를 실행하여 환경을 활성화하세요:\n"
+echo -e "\n설치 완료!"
+echo "환경 활성화:"
 echo "source webots_venv/bin/activate"
 echo "source install/setup.bash"
