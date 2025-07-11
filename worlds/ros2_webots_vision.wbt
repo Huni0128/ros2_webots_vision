@@ -14,8 +14,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.3130250898784003 -0.07495367728849704 0.9467825723826729 3.178852147010879
-  position 1.9488079671371636 -0.1668717462784554 1.5054300628298638
+  orientation -0.09244542683422435 -0.03680884695911649 0.995037161036199 2.292526002437365
+  position 1.2921952023873615 -0.9482985391810548 0.5848057440430309
 }
 TexturedBackground {
 }
@@ -32,28 +32,37 @@ Table {
 }
 RedBox {
   translation 0.6 0 0.35
-  name "red box"
   size 0.06 0.06 0.06
 }
 BlueBox {
   translation 0.6 0.25 0.35
-  name "blue box"
   size 0.06 0.06 0.06
 }
 GreenBox {
   translation 0.6 -0.25 0.35
-  name "green box"
   size 0.06 0.06 0.06
 }
 Panda {
   controller "ros2_panda"
   endEffectorSlot [
-    DEF GRIPPER PandaHand {
-    }
     JetBotRaspberryPiCamera {
       translation 0 0 0.06
-      rotation 0 -1 0 1.5708
-      fieldOfView 2
+      rotation    0 -1 0 1.5708
+      fieldOfView 2.0
+    }
+
+   RangeFinder {
+     name        "range_finder"
+     translation 0 0 0.06
+     rotation    0 -1 0 1.5708
+     width       640
+     height      480
+     fieldOfView 2.0
+     minRange    0.01
+     maxRange    1.0
+   }
+
+    DEF GRIPPER PandaHand {
     }
   ]
 }
