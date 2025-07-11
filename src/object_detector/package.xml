@@ -2,22 +2,28 @@
 <package format="3">
   <name>object_detector</name>
   <version>0.0.1</version>
-  <description>Python-based YOLOv8 object detector node</description>
+  <description>YOLOv8 기반 객체 검출 노드 (Python)</description>
 
-  <maintainer email="you@domain.com">Your Name</maintainer>
+  <!-- 패키지 메인테이너 -->
+  <maintainer email="tlacogns@gmail.com">sch</maintainer>
+
+  <!-- 라이선스 -->
   <license>MIT</license>
 
-  <!-- CMake → Python 스크립트 방식 -->
+  <!-- 빌드 도구 의존성 (Python 패키지 설치) -->
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_python</buildtool_depend>
 
   <!-- 런타임 의존성 -->
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>ultralytics</exec_depend>
+  <exec_depend>vision_msgs</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
 
+  <!-- ament_cmake 빌드 타입 지정 -->
   <export>
-    <!-- CMake 빌드 타입으로 처리 -->
     <build_type>ament_cmake</build_type>
   </export>
 </package>

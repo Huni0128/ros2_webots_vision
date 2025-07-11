@@ -2,25 +2,32 @@
 <package format="3">
   <name>ros2_panda</name>
   <version>0.1.0</version>
-  <description>Webots Panda controller integrated with ROS 2, including joint control and camera publishing.</description>
+  <description>Webots Panda 컨트롤러와 ROS 2 통합 (조인트 제어 및 카메라 퍼블리싱 포함)</description>
 
+  <!-- 메인테이너 정보 -->
   <maintainer email="tlacogns@gmail.com">sch</maintainer>
+
+  <!-- 라이선스 -->
   <license>MIT</license>
 
-  <!-- Build tools -->
+  <!-- 빌드 도구 의존성 -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- Build dependencies -->
+  <!-- 빌드 시 의존 패키지 -->
   <build_depend>rclcpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>tf2_ros</build_depend>
+  <build_depend>geometry_msgs</build_depend>
 
-  <!-- Execution-time dependencies -->
+  <!-- 실행 시 의존 패키지 -->
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
-  <!-- Export -->
+  <!-- ament_cmake 빌드 타입 지정 -->
   <export>
     <build_type>ament_cmake</build_type>
   </export>

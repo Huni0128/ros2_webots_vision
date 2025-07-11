@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>object_depth_estimator</name>
+  <version>0.0.0</version>
+  <description>
+    Webots의 깊이 센서와 2D 검출 결과를 융합하여 객체의 3D 포즈를 추정하는 노드
+  </description>
+
+  <!-- 패키지 메인테이너 정보 -->
+  <maintainer email="tlacogns@gmail.com">sch</maintainer>
+
+  <!-- 라이선스 -->
+  <license>Apache-2.0</license>
+
+  <!-- 빌드 도구 의존성 설정 -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- 빌드 및 런타임 의존성 -->
+  <depend>rclcpp</depend>
+  <depend>vision_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>opencv</depend>
+  <depend>message_filters</depend>
+
+  <!-- (선택) 린팅 도구 의존성 -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <!-- ament_cmake 빌드 타입 지정 -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
