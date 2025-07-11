@@ -1,39 +1,72 @@
 #include "camera_publisher.hpp"
+#include <cstring>  // for memcpy
 
-// 생성자: Webots 카메라 초기화 및 ROS 퍼블리셔 설정
-CameraPublisher::CameraPublisher(webots::Robot* robot, rclcpp::Node::SharedPtr node, int timestep)
-  : node_(node), timestep_(timestep) {
-  camera_ = robot->getCamera("camera");              // Webots 카메라 객체 가져오기
-  camera_->enable(timestep_);                        // 카메라 센서 활성화
-  publisher_ = node_->create_publisher<sensor_msgs::msg::Image>(
-      "/camera/image_raw", rclcpp::SensorDataQoS()); // ROS2 퍼블리셔 생성
+CameraPublisher::CameraPublisher(webots::Robot* robot,
+                                 rclcpp::Node::SharedPtr node,
+                                 int timestep)
+  : node_(node),
+    timestep_(timestep) {
+  // --- RGB 카메라 셋업 ---
+  camera_ = robot->getCamera("camera");
+  camera_->enable(timestep_);
+  rgb_pub_ = node_->create_publisher<sensor_msgs::msg::Image>(
+      "/camera/image_raw", rclcpp::SensorDataQoS());
+
+  // --- RangeFinder 셋업 ---
+  range_finder_ = robot->getRangeFinder("range_finder");
+  range_finder_->enable(timestep_);
+  depth_pub_ = node_->create_publisher<sensor_msgs::msg::Image>(
+      "/range_finder/image_raw", rclcpp::SensorDataQoS());
 }
 
-// 카메라 이미지 데이터를 ROS2 메시지로 변환해 퍼블리시
 void CameraPublisher::publish() {
-  const unsigned char* image_data = camera_->getImage(); // Webots에서 이미지 가져오기
-  if (!image_data) return;
+  // ==== 1) RGB 이미지 퍼블리시 ====
+  const unsigned char* image_data = camera_->getImage();
+  if (image_data) {
+    auto rgb_msg = sensor_msgs::msg::Image();
+    rgb_msg.header.stamp = node_->get_clock()->now();
+    rgb_msg.header.frame_id = "camera_color_frame";
+    rgb_msg.height = camera_->getHeight();
+    rgb_msg.width  = camera_->getWidth();
+    rgb_msg.encoding = "rgb8";
+    rgb_msg.is_bigendian = 0;
+    rgb_msg.step = rgb_msg.width * 3;
+    rgb_msg.data.resize(rgb_msg.height * rgb_msg.step);
 
-  auto msg = sensor_msgs::msg::Image();           // ROS2 이미지 메시지 생성
-  msg.header.stamp = node_->get_clock()->now();   // 현재 시간 기록
-  msg.height = camera_->getHeight();              // 이미지 높이
-  msg.width = camera_->getWidth();                // 이미지 너비
-  msg.encoding = "rgb8";                          // RGB 형식 지정
-  msg.is_bigendian = 0;
-  msg.step = msg.width * 3;                       // 한 줄당 바이트 수 (RGB)
-  msg.data.resize(msg.height * msg.step);         // 전체 데이터 공간 확보
-
-  // Webots 이미지(RGBA)를 ROS 이미지(RGB)로 변환
-  for (int y = 0; y < msg.height; ++y) {
-    for (int x = 0; x < msg.width; ++x) {
-      int src_index = 4 * (y * msg.width + x);    // Webots RGBA 포맷 인덱스
-      int dst_index = 3 * (y * msg.width + x);    // ROS RGB 포맷 인덱스
-
-      msg.data[dst_index + 0] = image_data[src_index + 0];  // R
-      msg.data[dst_index + 1] = image_data[src_index + 1];  // G
-      msg.data[dst_index + 2] = image_data[src_index + 2];  // B
+    // Webots RGBA → ROS RGB
+    for (int y = 0; y < rgb_msg.height; ++y) {
+      for (int x = 0; x < rgb_msg.width; ++x) {
+        int src = 4 * (y * rgb_msg.width + x);
+        int dst = 3 * (y * rgb_msg.width + x);
+        rgb_msg.data[dst + 0] = image_data[src + 0];
+        rgb_msg.data[dst + 1] = image_data[src + 1];
+        rgb_msg.data[dst + 2] = image_data[src + 2];
+      }
     }
+    rgb_pub_->publish(std::move(rgb_msg));
   }
 
-  publisher_->publish(msg);  // 토픽 퍼블리시
+  // ==== 2) 깊이(depth) 이미지 퍼블리시 ====
+  const float* range_image = range_finder_->getRangeImage();
+  if (range_image) {
+    int w = range_finder_->getWidth();
+    int h = range_finder_->getHeight();
+
+    auto depth_msg = sensor_msgs::msg::Image();
+    depth_msg.header.stamp = node_->get_clock()->now();
+    depth_msg.header.frame_id = "camera_depth_frame";
+    depth_msg.height = h;
+    depth_msg.width  = w;
+    depth_msg.encoding = "32FC1";            // 32-bit float 단일 채널
+    depth_msg.is_bigendian = 0;
+    depth_msg.step = w * sizeof(float);      // 한 줄당 바이트 수
+    depth_msg.data.resize(h * depth_msg.step);
+
+    // 메모리 복사: Webots float 배열 → ROS 메시지 버퍼
+    std::memcpy(depth_msg.data.data(),
+                reinterpret_cast<const uint8_t*>(range_image),
+                depth_msg.data.size());
+
+    depth_pub_->publish(std::move(depth_msg));
+  }
 }
