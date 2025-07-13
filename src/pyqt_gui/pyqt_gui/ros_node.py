@@ -1,8 +1,10 @@
+# pyqt_gui/ros_node.py
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import Image, JointState
-from std_msgs.msg import Float64, Float64MultiArray
+from std_msgs.msg import Float64, Float64MultiArray, String   # ← String 추가
 from cv_bridge import CvBridge
 
 from PyQt5.QtGui import QImage
@@ -61,14 +63,31 @@ class RosQtNode(Node):
             10
         )
 
-        # GUI 콜백
+        # ▶ 추가: 박스 픽 명령 퍼블리셔
+        self.pick_cmd_pub = self.create_publisher(
+            String,
+            '/pick_box',
+            10
+        )
+        # ▶ 추가: 픽 상태(sub) 구독
+        self.create_subscription(
+            String,
+            '/pick_box_status',
+            self._on_pick_status,
+            10
+        )
+
+        # GUI 콜백 핸들러들
         self._img_callback = None
         self._detected_img_callback = None
         self._joint_callback = None
         self._gripper_callback = None
+        # ▶ 픽 상태 콜백
+        self._pick_status_callback = None
+
+    # … 기존 콜백들 그대로 …
 
     def image_cb(self, msg: Image):
-        # 원본 카메라 이미지 처리
         cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
         h, w, _ = cv_img.shape
         rgb = cv_img[:, :, ::-1].copy()
@@ -77,7 +96,6 @@ class RosQtNode(Node):
             self._img_callback(qimg)
 
     def detected_cb(self, msg: Image):
-        # 객체 탐지 이미지 처리
         cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         h, w, _ = cv_img.shape
         rgb = cv_img[:, :, ::-1].copy()
@@ -92,6 +110,26 @@ class RosQtNode(Node):
     def gripper_cb(self, msg: JointState):
         if self._gripper_callback:
             self._gripper_callback(msg.name, msg.position)
+
+    # ▶ 박스 픽 명령을 퍼블리시
+    def send_pick_box(self, color_id: str):
+        msg = String()
+        msg.data = color_id
+        self.pick_cmd_pub.publish(msg)
+        self.get_logger().info(f"Sent pick command: {color_id}")
+
+    # ▶ '/pick_box_status' 콜백
+    def _on_pick_status(self, msg: String):
+        if self._pick_status_callback:
+            self._pick_status_callback(msg.data)
+        else:
+            self.get_logger().warn(f"Status received but no callback set: {msg.data}")
+
+    # ▶ GUI에서 콜백 등록용
+    def set_pick_status_callback(self, func):
+        self._pick_status_callback = func
+
+    # … 기존 send_joint_commands, send_gripper_command 그대로 …
 
     def send_joint_commands(self, joint_positions: list):
         msg = Float64MultiArray()

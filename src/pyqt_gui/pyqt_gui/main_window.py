@@ -60,13 +60,13 @@ class MainWindow(QMainWindow):
         self.control_panel = ControlPanel(joint_names)
         root_layout.addWidget(self.control_panel, stretch=1)
 
-        # ROS 콜백 연결
-        ros_node._img_callback = self.on_normal_image
+        # ── ROS 콜백 연결 ──
+        ros_node._img_callback       = self.on_normal_image
         ros_node._detected_img_callback = self.on_detected_image
-        ros_node._joint_callback = self.on_joint_state
-        ros_node._gripper_callback = self.on_gripper_state
+        ros_node._joint_callback     = self.on_joint_state
+        ros_node._gripper_callback   = self.on_gripper_state
 
-        # 제어 이벤트 연결
+        # ── 제어 이벤트 연결 ──
         self.control_panel.connect_joint_callback(ros_node.send_joint_commands)
         self.control_panel.connect_gripper_callback(ros_node.send_gripper_command)
         self.control_panel.connect_gripper_open_close(
@@ -74,6 +74,12 @@ class MainWindow(QMainWindow):
             lambda: ros_node.send_gripper_command(0.0)
         )
         self.control_panel.connect_reset(self.reset_to_initial)
+
+        # ── 픽 박스 연결 추가 ──
+        # 버튼 클릭 → '/pick_box' 퍼블리시
+        self.control_panel.connect_pick_box(self.ros_node.send_pick_box)
+        # '/pick_box_status' 메시지 → 상태바에 표시
+        self.ros_node.set_pick_status_callback(self.statusBar().showMessage)
 
         # 라디오 버튼 동작 연결
         self.radio_normal.toggled.connect(self.on_radio_toggle)
@@ -136,7 +142,9 @@ class MainWindow(QMainWindow):
 
         if self.initial_joint_positions is not None:
             self.ros_node.send_joint_commands(self.initial_joint_positions)
-            self.control_panel.update_joint_values(self.joint_names, self.initial_joint_positions)
+            self.control_panel.update_joint_values(
+                self.joint_names, self.initial_joint_positions
+            )
 
         if self.initial_gripper is not None:
             self.ros_node.send_gripper_command(self.initial_gripper)
