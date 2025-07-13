@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(object_detector)
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_python REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 # Python 패키지 설치
 ament_python_install_package(${PROJECT_NAME})

@@ -13,7 +13,7 @@ from vision_msgs.msg import (
     Detection2D,
     Detection2DArray,
     ObjectHypothesisWithPose,
-    ObjectHypothesis,
+    Point2D,
     Pose2D,
 )
 from geometry_msgs.msg import PoseWithCovariance
@@ -74,25 +74,42 @@ class BoxDetector(Node):
 
             # 로그: 박스 개수
             count = len(results[0].boxes) if results else 0
-            self.get_logger().info(f"Detected {count} boxes")
+            self.get_logger().info(f"[BOX DETECTOR] Detected {count} boxes")
 
-            for box in (results[0].boxes if results else []):
+            # 각 박스에 대해
+            for idx, box in enumerate(results[0].boxes if results else []):
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
                 conf_score = float(box.conf[0])
                 self.get_logger().info(
-                    f"  box: ({x1},{y1})→({x2},{y2}), conf={conf_score:.2f}")
+                    f"[BOX DETECTOR]   idx={idx}: box=({x1},{y1})→({x2},{y2}), conf={conf_score:.2f}"
+                )
 
                 # Detection2D 생성
                 det = Detection2D()
                 det.header = msg.header
 
-                # 바운딩박스 설정
-                cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
-                det.bbox.center = Pose2D(x=cx, y=cy, theta=0.0)
-                det.bbox.size_x = float(x2 - x1)
-                det.bbox.size_y = float(y2 - y1)
+                # 바운딩박스 중심 & 크기 계산
+                cx = (x1 + x2) / 2.0
+                cy = (y1 + y2) / 2.0
+                w  = float(x2 - x1)
+                h  = float(y2 - y1)
 
-                # 색상 판정
+                # 수정: Pose2D.position.x/y 에 값 채우기
+                center = Pose2D()
+                center.position = Point2D(x=cx, y=cy)
+                center.theta = 0.0
+                det.bbox.center = center
+                det.bbox.size_x = w
+                det.bbox.size_y = h
+
+                # 디버깅 로그: 실제 메시지 필드 확인
+                self.get_logger().info(
+                    f"[DET MSG]   idx={idx}: "
+                    f"center.position=({center.position.x:.1f}, {center.position.y:.1f}), "
+                    f"theta={center.theta:.3f}, size=({w:.1f}, {h:.1f})"
+                )
+
+                # 색상 판정 (기존 코드)
                 roi = frame_bgr[y1:y2, x1:x2]
                 hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
                 def ratio(img, lo, hi):
@@ -112,7 +129,6 @@ class BoxDetector(Node):
                 hypo.hypothesis.class_id = str(self.color_ids[color])
                 hypo.hypothesis.score    = conf_score
                 hypo.pose                = PoseWithCovariance()
-
                 det.results.append(hypo)
                 det_array.detections.append(det)
 

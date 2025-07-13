@@ -2,29 +2,28 @@
 #include <vision_msgs/msg/detection2_d_array.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <cv_bridge/cv_bridge.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
+#include <cmath>
 
 class ObjectDepthEstimator : public rclcpp::Node {
 public:
     ObjectDepthEstimator()
     : Node("object_depth_estimator")
     {
-        // 2D 검출, 깊이, 카메라 정보 토픽 구독
         det_sub_.subscribe(this, "/object_detector/detections", rmw_qos_profile_sensor_data);
         depth_sub_.subscribe(this, "/range_finder/image_raw",    rmw_qos_profile_sensor_data);
         info_sub_.subscribe(this,  "/camera/camera_info",       rmw_qos_profile_sensor_data);
 
-        // ApproximateTime 동기화 설정
         sync_ = std::make_shared<message_filters::Synchronizer<MySyncPolicy>>(
             MySyncPolicy(10), det_sub_, depth_sub_, info_sub_);
         sync_->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.1));
         sync_->registerCallback(&ObjectDepthEstimator::callback, this);
 
-        // 3D 포즈 배열 퍼블리셔
         pose_pub_ = create_publisher<geometry_msgs::msg::PoseArray>(
             "/object_depth/pose_array", 10);
 
@@ -37,32 +36,86 @@ private:
         const sensor_msgs::msg::Image::ConstSharedPtr         depth_msg,
         const sensor_msgs::msg::CameraInfo::ConstSharedPtr    info)
     {
-        // 카메라 내부 파라미터 읽기
+        // --- 1) 컬러 카메라 내부 파라미터(Projection) -----------------------------------
         const auto& K = info->k;
         double fx = K[0], fy = K[4], cx = K[2], cy = K[5];
+        int color_w = info->width, color_h = info->height;
 
-        // 깊이 이미지를 OpenCV 형식으로 변환
-        cv::Mat depth = cv_bridge::toCvCopy(depth_msg, depth_msg->encoding)->image;
+        // --- 2) 깊이 이미지 변환 & 인코딩 확인 ---------------------------------------
+        const std::string enc = depth_msg->encoding;
+        RCLCPP_INFO(get_logger(), "Depth encoding: %s", enc.c_str());
 
+        namespace encs = sensor_msgs::image_encodings;
+        cv_bridge::CvImagePtr cv_ptr;
+        cv::Mat depth_f;
+        if (enc == encs::TYPE_16UC1) {
+            cv_ptr = cv_bridge::toCvCopy(depth_msg, encs::TYPE_16UC1);
+            cv_ptr->image.convertTo(depth_f, CV_32FC1, 0.001f);  // mm→m
+        }
+        else if (enc == encs::TYPE_32FC1) {
+            cv_ptr = cv_bridge::toCvCopy(depth_msg, encs::TYPE_32FC1);
+            depth_f = cv_ptr->image;
+        }
+        else {
+            RCLCPP_ERROR(get_logger(),
+                "Unsupported depth encoding '%s'", enc.c_str());
+            return;
+        }
+
+        int depth_w = depth_f.cols, depth_h = depth_f.rows;
+        RCLCPP_INFO(get_logger(),
+            "Color res=(%d,%d), Depth res=(%d,%d)",
+            color_w, color_h, depth_w, depth_h);
+
+        // 좌표 매핑 비율
+        double scale_x = double(depth_w) / color_w;
+        double scale_y = double(depth_h) / color_h;
+        RCLCPP_INFO(get_logger(),
+            "Scale (x,y) = (%.3f, %.3f)", scale_x, scale_y);
+
+        // --- 3) PoseArray 준비 -----------------------------------------------------
         geometry_msgs::msg::PoseArray poses;
         poses.header = depth_msg->header;
 
-        for (const auto &det : dets->detections) {
-            // 바운딩 박스 중심 픽셀 좌표
-            int u = static_cast<int>(det.bbox.center.x);
-            int v = static_cast<int>(det.bbox.center.y);
-            if (u < 0 || u >= depth.cols || v < 0 || v >= depth.rows) {
+        // --- 4) 각 Detection2D 역투영 ------------------------------------------------
+        for (size_t i = 0; i < dets->detections.size(); ++i) {
+            const auto &det = dets->detections[i];
+
+            // 원본 컬러 이미지 상의 픽셀 좌표
+            double u_color = det.bbox.center.position.x;
+            double v_color = det.bbox.center.position.y;
+
+            // 깊이 이미지 상의 대응 픽셀 좌표로 매핑
+            int u_depth = int(u_color * scale_x + 0.5);
+            int v_depth = int(v_color * scale_y + 0.5);
+
+            RCLCPP_INFO(get_logger(),
+              "Det[%zu] color (%.1f,%.1f) → depth (u,v)=(%d,%d)",
+              i, u_color, v_color, u_depth, v_depth);
+
+            // 범위 검사
+            if (u_depth < 0 || u_depth >= depth_w ||
+                v_depth < 0 || v_depth >= depth_h)
+            {
+                RCLCPP_WARN(get_logger(),
+                  "  → mapped pixel out of bounds, skip");
                 continue;
             }
 
-            float z = depth.at<float>(v, u);
-            if (z <= 0.0f) {
+            // 깊이값 읽기
+            float z = depth_f.at<float>(v_depth, u_depth);
+            RCLCPP_INFO(get_logger(),
+              "  raw z @(%d,%d) = %.3f m", u_depth, v_depth, z);
+
+            if (z <= 0.0f || std::isnan(z)) {
+                RCLCPP_WARN(get_logger(),
+                  "  → invalid z, skip");
                 continue;
             }
 
-            // 픽셀 좌표를 3D 포인트로 역투영
-            float X = (u - cx) * z / fx;
-            float Y = (v - cy) * z / fy;
+            // 컬러 카메라 파라미터로 3D 역투영 (using original color coords)
+            float X = (u_color - cx) * z / fx;
+            float Y = (v_color - cy) * z / fy;
 
             geometry_msgs::msg::Pose p;
             p.position.x    = X;
@@ -71,22 +124,20 @@ private:
             p.orientation.w = 1.0;
             poses.poses.push_back(p);
 
-            // 로그 출력
-            RCLCPP_INFO(
-                get_logger(),
-                "Det [%s] → (x,y,z) = (%.3f, %.3f, %.3f) m",
-                det.results.empty() ? "?" : det.results[0].hypothesis.class_id.c_str(),
-                X, Y, z);
+            RCLCPP_INFO(get_logger(),
+              "  Det [%s] → (X,Y,Z) = (%.3f, %.3f, %.3f) m",
+              det.results.empty() ? "?" :
+                det.results[0].hypothesis.class_id.c_str(),
+              X, Y, z);
         }
 
-        // 전체 포즈 배열 퍼블리시
+        // --- 5) Publish -------------------------------------------------------------
         pose_pub_->publish(poses);
     }
 
-    // 토픽 동기화를 위한 서브스크라이버
     message_filters::Subscriber<vision_msgs::msg::Detection2DArray> det_sub_;
-    message_filters::Subscriber<sensor_msgs::msg::Image>             depth_sub_;
-    message_filters::Subscriber<sensor_msgs::msg::CameraInfo>        info_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image>            depth_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::CameraInfo>       info_sub_;
 
     using MySyncPolicy = message_filters::sync_policies::ApproximateTime<
         vision_msgs::msg::Detection2DArray,
@@ -94,7 +145,6 @@ private:
         sensor_msgs::msg::CameraInfo>;
     std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
-    // 3D 포즈 퍼블리셔
     rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_pub_;
 };
 
