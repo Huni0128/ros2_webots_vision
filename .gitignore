@@ -50,4 +50,6 @@ Thumbs.db
 *.jpg
 *.jpeg
 
+# This file is used to set up the environment for the ROS2 Webots vision project.
+env.sh
 

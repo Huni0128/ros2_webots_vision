@@ -44,12 +44,12 @@ fi
 
 # YOLO 모델 안내
 echo "YOLO 모델 로드 안내:"
-echo "사용자가 학습한 커스텀 모델 파일(best.pt)을 다음 경로에 수동으로 복사하세요:"
-echo "models/best.pt"
+echo "커스텀으로 학습한 모델 파일을 다음 경로에 복사하세요:"
+echo "src/object_detector/models/box_detect.pt"
 echo ""
 echo "예시 데이터셋:"
 echo "https://www.kaggle.com/datasets/udaysankarmukherjee/box-dataset"
-echo "※ 필요 시 다운로드하여 object_detector/dataset/에 압축 해제하세요."
+echo "※ 필요 시 다운로드하여 src/object_detector/dataset/에 압축 해제하세요."
 
 # rosdep 설정
 if ! command -v rosdep >/dev/null; then
