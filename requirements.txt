@@ -1,2 +1,4 @@
 ultralytics
 numpy < 2.0
+catkin_pkg
+PyQt5

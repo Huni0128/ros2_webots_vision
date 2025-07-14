@@ -28,10 +28,16 @@ VENV_DIR="./webots_venv"
 if [ ! -d "$VENV_DIR" ]; then
     echo "가상환경(webots_venv)을 생성합니다..."
     python3 -m venv "$VENV_DIR"
+    touch "$VENV_DIR/AMENT_IGNORE"
 fi
 
 echo "가상환경(webots_venv)을 활성화합니다..."
 source "$VENV_DIR/bin/activate"
+
+# — Wayland 환경에서 Qt 플랫폼 지정 (xcb 로딩 오류 회피)
+export QT_QPA_PLATFORM=wayland
+export QT_LOGGING_RULES="qt.qpa.*=false;*.warning=false"
+
 
 # requirements.txt 설치
 if [ -f "requirements.txt" ]; then
@@ -94,5 +100,5 @@ colcon build || { echo "colcon 빌드 실패"; exit 1; }
 # 완료
 echo -e "\n설치 완료!"
 echo "환경 활성화:"
-echo "source webots_venv/bin/activate"
-echo "source install/setup.bash"
+echo "  source webots_venv/bin/activate"
+echo "  source install/setup.bash"
