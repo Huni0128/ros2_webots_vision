@@ -21,6 +21,7 @@ add_executable(ros2_panda
     src/camera_publisher.cpp
     src/panda_joint_controller.cpp
     src/panda_gripper_controller.cpp
+    src/panda_tf_publisher.cpp
 )
 
 # 포함 디렉터리 설정 (Webots 헤더와 패키지 헤더)
