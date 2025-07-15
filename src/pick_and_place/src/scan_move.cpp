@@ -1,5 +1,3 @@
-// scan_move.cpp
-
 #include <memory>
 #include <vector>
 #include <cmath>
