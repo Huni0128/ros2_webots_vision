@@ -10,12 +10,14 @@ EXTERNPROTO "../protos/BlueBox.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/Panda.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/franka_emika/panda/protos/PandaHand.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/nvidia/jetbot/protos/JetBotRaspberryPiCamera.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/VarnishedPine.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.09244542683422435 -0.03680884695911649 0.995037161036199 2.292526002437365
-  position 1.2921952023873615 -0.9482985391810548 0.5848057440430309
+  orientation -0.33182516998588446 0.04328423106038561 0.9423473520445366 2.6923970556890846
+  position 1.7225754264114586 -0.6033785297617156 1.3237436568817724
 }
 TexturedBackground {
 }
@@ -23,12 +25,28 @@ TexturedBackgroundLight {
 }
 RectangleArena {
   floorSize 4 4
-  floorTileSize 4 4
+  floorTileSize 8 8
+  floorAppearance Parquetry {
+    type "chequered"
+    colorOverride 0 0 0
+  }
   wallHeight 0.3
 }
 Table {
   translation 0.6 0 0.01
   size 0.5 0.9 0.3
+  trayAppearance VarnishedPine {
+    colorOverride 0.141176 0.121569 0.192157
+    textureTransform TextureTransform {
+      scale 0 0
+    }
+  }
+  legAppearance VarnishedPine {
+    colorOverride 0.141176 0.121569 0.192157
+    textureTransform TextureTransform {
+      scale 4 5
+    }
+  }
 }
 RedBox {
   translation 0.6 0 0.35
@@ -47,21 +65,17 @@ Panda {
   endEffectorSlot [
     JetBotRaspberryPiCamera {
       translation 0 0 0.06
-      rotation    0 -1 0 1.5708
-      fieldOfView 2.0
+      rotation 0 -1 0 1.5708
+      fieldOfView 2
     }
-
-   RangeFinder {
-     name        "range_finder"
-     translation 0 0 0.06
-     rotation    0 -1 0 1.5708
-     width       640
-     height      480
-     fieldOfView 2.0
-     minRange    0.01
-     maxRange    1.0
-   }
-
+    RangeFinder {
+      translation 0 0 0.06
+      rotation 0 -1 0 1.5708
+      name "range_finder"
+      fieldOfView 2
+      width 640
+      height 480
+    }
     DEF GRIPPER PandaHand {
     }
   ]
