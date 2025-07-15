@@ -6,16 +6,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# 의존 패키지 찾기
+# ament 기능
 find_package(ament_cmake REQUIRED)
+
+# ROS 2 기본 패키지
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+
+# vision_msgs (Detection2DArray) 추가
+find_package(vision_msgs REQUIRED)
+
+# 다른 의존 패키지 (필요시 유지)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_msgs REQUIRED)
 
-# 테스트 관련 설정 (선택사항)
+# 테스트 관련 (선택사항)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
@@ -32,13 +39,13 @@ add_executable(command_sub
 ament_target_dependencies(command_sub
   rclcpp
   std_msgs
+  vision_msgs
 )
 
-# 실행 파일 설치 경로 설정
+# 실행 파일 설치
 install(
   TARGETS command_sub
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-# ament 패키지로 등록
 ament_package()
