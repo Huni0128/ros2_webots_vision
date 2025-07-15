@@ -16,10 +16,7 @@
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>vision_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>tf2_ros</depend>
-  <depend>moveit_ros_planning_interface</depend>
-  <depend>moveit_msgs</depend>
+  <depend>sensor_msgs</depend>
 
   <!-- 테스트 및 코드 스타일 관련 의존성 -->
   <test_depend>ament_lint_auto</test_depend>
