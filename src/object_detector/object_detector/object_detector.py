@@ -23,135 +23,131 @@ class BoxDetector(Node):
         super().__init__('box_detector')
         self.bridge = CvBridge()
 
-        # 구독: 카메라 원본
+        # 카메라 원본 이미지 구독
         self.create_subscription(
             Image, '/camera/image_raw',
             self.image_callback,
             qos_profile_sensor_data)
 
-        # 퍼블리시: 주석 이미지
+        # 주석 이미지 퍼블리시
         self.pub_annot = self.create_publisher(
             Image, '/camera/detected_objects',
             qos_profile_sensor_data)
 
-        # 퍼블리시: 검출 결과
+        # 박스 검출 결과 퍼블리시
         self.pub_det = self.create_publisher(
             Detection2DArray, '/object_detector/detections', 10)
 
-        # 모델 로드
+        # YOLO 모델 로드
         pkg_dir = get_package_share_directory('object_detector')
         model_path = os.path.join(pkg_dir, 'models', 'box_detect.pt')
         self.model = YOLO(model_path)
         self.get_logger().info(f"Loaded YOLO model: {model_path}")
 
-        # 색상→ID 매핑
-        self.color_ids = {'red_box': 0,
-                          'green_box': 1,
-                          'blue_box': 2}
+        # 색상 → 클래스 ID 매핑
+        self.color_ids = {
+            'red_box': 0,
+            'green_box': 1,
+            'blue_box': 2,
+        }
+
+        # HSV 색상 범위 설정
+        self.hsv_ranges = {
+            'red_box': [
+                ((0,   50,  50), (10, 255, 255)),
+                ((170, 50,  50), (179, 255, 255)),
+            ],
+            'green_box': [
+                ((35,  50,  50), (85, 255, 255)),
+            ],
+            'blue_box': [
+                ((90,  50,  50), (130,255,255)),
+            ],
+        }
 
     def image_callback(self, msg: Image):
-        # 이미지 변환: ROS→OpenCV
+        # 1) ROS 이미지 → OpenCV BGR
         try:
-            frame_bgr = self.bridge.imgmsg_to_cv2(msg, 'rgb8')
+            frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
         except Exception as e:
             self.get_logger().error(f'CV Bridge error: {e}')
             return
 
-        # BGR→RGB for YOLO
-        frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-
-        # 검출 배열 초기화
+        # Detection2DArray 초기화
         det_array = Detection2DArray()
         det_array.header = msg.header
 
-        # 추론 및 메시지 작성
+        # 2) YOLO 추론 수행
         try:
             results = self.model.predict(
-                source=frame_rgb,
-                conf=0.15, imgsz=1280,
-                iou=0.45, stream=False,
+                source=frame,
+                conf=0.15,
+                imgsz=1280,
+                iou=0.45,
+                stream=False,
                 verbose=False)
-
-            # 로그: 박스 개수
-            count = len(results[0].boxes) if results else 0
-            self.get_logger().info(f"[BOX DETECTOR] Detected {count} boxes")
-
-            # 각 박스에 대해
-            for idx, box in enumerate(results[0].boxes if results else []):
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
-                conf_score = float(box.conf[0])
-                self.get_logger().info(
-                    f"[BOX DETECTOR]   idx={idx}: box=({x1},{y1})→({x2},{y2}), conf={conf_score:.2f}"
-                )
-
-                # Detection2D 생성
-                det = Detection2D()
-                det.header = msg.header
-
-                # 바운딩박스 중심 & 크기 계산
-                cx = (x1 + x2) / 2.0
-                cy = (y1 + y2) / 2.0
-                w  = float(x2 - x1)
-                h  = float(y2 - y1)
-
-                # 수정: Pose2D.position.x/y 에 값 채우기
-                center = Pose2D()
-                center.position = Point2D(x=cx, y=cy)
-                center.theta = 0.0
-                det.bbox.center = center
-                det.bbox.size_x = w
-                det.bbox.size_y = h
-
-                # 디버깅 로그: 실제 메시지 필드 확인
-                self.get_logger().info(
-                    f"[DET MSG]   idx={idx}: "
-                    f"center.position=({center.position.x:.1f}, {center.position.y:.1f}), "
-                    f"theta={center.theta:.3f}, size=({w:.1f}, {h:.1f})"
-                )
-
-                # 색상 판정 (기존 코드)
-                roi = frame_bgr[y1:y2, x1:x2]
-                hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-                def ratio(img, lo, hi):
-                    m = cv2.inRange(img, lo, hi)
-                    return cv2.countNonZero(m) / (m.size + 1e-6)
-                red   = ratio(hsv, (0,100,100), (10,255,255)) + \
-                        ratio(hsv, (160,100,100), (179,255,255))
-                green = ratio(hsv, (35,100,100), (85,255,255))
-                blue  = ratio(hsv, (100,100,100), (130,255,255))
-                color = max([("red_box", red),
-                             ("green_box", green),
-                             ("blue_box", blue)],
-                            key=lambda x: x[1])[0]
-
-                # 결과 설정
-                hypo = ObjectHypothesisWithPose()
-                hypo.hypothesis.class_id = str(self.color_ids[color])
-                hypo.hypothesis.score    = conf_score
-                hypo.pose                = PoseWithCovariance()
-                det.results.append(hypo)
-                det_array.detections.append(det)
-
-                # 화면 표시용 박스
-                cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0,255,0), 2)
-                cv2.putText(frame_bgr, color, (x1, y1-10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6,
-                            (255,255,255), 2)
-
         except Exception as e:
             self.get_logger().error(f'Inference error: {e}')
+            results = []
 
-        # 퍼블리시
+        # 3) 결과 처리 및 HSV 색상 판별
+        for box in (results[0].boxes if results else []):
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            conf_score = float(box.conf[0])
+
+            # Detection2D 생성
+            det = Detection2D()
+            det.header = msg.header
+
+            # 박스 중심 좌표 및 크기 설정
+            cx = (x1 + x2) / 2.0
+            cy = (y1 + y2) / 2.0
+            w  = float(x2 - x1)
+            h  = float(y2 - y1)
+            center = Pose2D()
+            center.position = Point2D(x=cx, y=cy)
+            center.theta = 0.0
+            det.bbox.center = center
+            det.bbox.size_x = w
+            det.bbox.size_y = h
+
+            # ROI 영역 HSV 변환 후 색상 판별
+            roi = frame[y1:y2, x1:x2]
+            hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
+            def ratio(hsv_img, lo, hi):
+                mask = cv2.inRange(hsv_img, lo, hi)
+                return cv2.countNonZero(mask) / (mask.size + 1e-6)
+            scores = {
+                cname: sum(ratio(hsv, lo, hi) for lo, hi in ranges)
+                for cname, ranges in self.hsv_ranges.items()
+            }
+            color = max(scores, key=scores.get)
+
+            # 클래스 정보 추가
+            hypo = ObjectHypothesisWithPose()
+            hypo.hypothesis.class_id = str(self.color_ids[color])
+            hypo.hypothesis.score    = conf_score
+            hypo.pose = PoseWithCovariance()
+            det.results.append(hypo)
+            det_array.detections.append(det)
+
+            # 박스 및 레이블 표시
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,0), 2)
+            cv2.putText(frame, color, (x1, y1-10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
+
+        # 4) 주석 이미지 및 검출 결과 퍼블리시
         try:
-            out_msg = self.bridge.cv2_to_imgmsg(frame_bgr, 'bgr8')
+            out_msg = self.bridge.cv2_to_imgmsg(frame, 'rgb8')
             out_msg.header = msg.header
             self.pub_annot.publish(out_msg)
             self.pub_det.publish(det_array)
         except Exception as e:
             self.get_logger().error(f'Publish error: {e}')
 
-        # 윈도우 표시
-        cv2.imshow("Detected Boxes", frame_bgr)
+        # 5) 디버그용 이미지 디스플레이 (색상 보정)
+        disp = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        cv2.imshow("Detected Boxes", disp)
         cv2.waitKey(1)
 
 
