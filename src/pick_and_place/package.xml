@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
+  <!-- 패키지 기본 정보 -->
   <name>pick_and_place</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="tlacogns@gmail.com">sch</maintainer>
-  <license>TODO: License declaration</license>
+  <version>0.0.1</version>
+  <description>Command subscriber and pick‐and‐place node using MoveIt2</description>
 
+  <!-- 메인테이너 정보 -->
+  <maintainer email="tlacogns@gmail.com">sch</maintainer>
+  <license>Apache-2.0</license>
+
+  <!-- 빌드 도구 의존성 -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <!-- 실행 및 빌드 시 필요한 의존성 -->
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
@@ -16,9 +20,11 @@
   <depend>moveit_ros_planning_interface</depend>
   <depend>moveit_msgs</depend>
 
+  <!-- 테스트 및 코드 스타일 관련 의존성 -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
+  <!-- 빌드 시스템 설정 (ament_cmake 사용) -->
   <export>
     <build_type>ament_cmake</build_type>
   </export>
