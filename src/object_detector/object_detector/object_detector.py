@@ -73,6 +73,9 @@ class BoxDetector(Node):
             self.get_logger().error(f'CV Bridge error: {e}')
             return
 
+        h, w = frame.shape[:2]
+        img_cx, img_cy = w / 2.0, h / 2.0
+
         # Detection2DArray 초기화
         det_array = Detection2DArray()
         det_array.header = msg.header
@@ -90,28 +93,40 @@ class BoxDetector(Node):
             self.get_logger().error(f'Inference error: {e}')
             results = []
 
-        # 3) 결과 처리 및 HSV 색상 판별
-        for box in (results[0].boxes if results else []):
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
-            conf_score = float(box.conf[0])
+        # 3) 모든 박스 중 중앙에 가장 가까운 박스 하나만 선택
+        best_box = None
+        best_dist = float('inf')
+        if results:
+            for box in results[0].boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                cx = (x1 + x2) / 2.0
+                cy = (y1 + y2) / 2.0
+                dist2 = (cx - img_cx)**2 + (cy - img_cy)**2
+                if dist2 < best_dist:
+                    best_dist = dist2
+                    best_box = box
 
-            # Detection2D 생성
+        # 4) 선택된 박스가 있을 때만 HSV 분석 및 퍼블리시
+        if best_box is not None:
+            x1, y1, x2, y2 = map(int, best_box.xyxy[0])
+            conf_score = float(best_box.conf[0])
+
             det = Detection2D()
             det.header = msg.header
 
             # 박스 중심 좌표 및 크기 설정
             cx = (x1 + x2) / 2.0
             cy = (y1 + y2) / 2.0
-            w  = float(x2 - x1)
-            h  = float(y2 - y1)
+            w_box = float(x2 - x1)
+            h_box = float(y2 - y1)
             center = Pose2D()
             center.position = Point2D(x=cx, y=cy)
             center.theta = 0.0
             det.bbox.center = center
-            det.bbox.size_x = w
-            det.bbox.size_y = h
+            det.bbox.size_x = w_box
+            det.bbox.size_y = h_box
 
-            # ROI 영역 HSV 변환 후 색상 판별
+            # ROI 영역 HSV 변환 후 색상 판별 (원본 코드 그대로)
             roi = frame[y1:y2, x1:x2]
             hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
             def ratio(hsv_img, lo, hi):
@@ -123,7 +138,6 @@ class BoxDetector(Node):
             }
             color = max(scores, key=scores.get)
 
-            # 클래스 정보 추가
             hypo = ObjectHypothesisWithPose()
             hypo.hypothesis.class_id = str(self.color_ids[color])
             hypo.hypothesis.score    = conf_score
@@ -131,12 +145,12 @@ class BoxDetector(Node):
             det.results.append(hypo)
             det_array.detections.append(det)
 
-            # 박스 및 레이블 표시
+            # 원본 코드대로 주석 표시
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,0), 2)
             cv2.putText(frame, color, (x1, y1-10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
 
-        # 4) 주석 이미지 및 검출 결과 퍼블리시
+        # 5) 주석 이미지 및 검출 결과 퍼블리시 (원본 변환 그대로)
         try:
             out_msg = self.bridge.cv2_to_imgmsg(frame, 'rgb8')
             out_msg.header = msg.header
@@ -145,7 +159,7 @@ class BoxDetector(Node):
         except Exception as e:
             self.get_logger().error(f'Publish error: {e}')
 
-        # 5) 디버그용 이미지 디스플레이 (색상 보정)
+        # 6) 디버그용 이미지 디스플레이 (원본 코드대로)
         disp = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         cv2.imshow("Detected Boxes", disp)
         cv2.waitKey(1)
