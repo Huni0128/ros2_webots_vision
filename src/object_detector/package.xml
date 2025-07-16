@@ -1,32 +1,32 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>object_detector</name>
-  <version>0.0.1</version>
-  <description>YOLOv8 기반 객체 검출 노드 (Python)</description>
+    <name>object_detector</name>
+    <version>0.0.1</version>
+    <description>YOLOv8 기반 객체 검출 노드 (Python)</description>
 
-  <!-- 메인테이너 -->
-  <maintainer email="tlacogns@gmail.com">sch</maintainer>
+    <!-- 메인테이너 -->
+    <maintainer email="tlacogns@gmail.com">sch</maintainer>
 
-  <!-- 라이선스 -->
-  <license>MIT</license>
+    <!-- 라이선스 -->
+    <license>MIT</license>
 
-  <!-- 빌드 도구 의존성 -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>ament_cmake_python</buildtool_depend>
-  <buildtool_depend>launch</buildtool_depend>
-  <buildtool_depend>launch_ros</buildtool_depend>
+    <!-- 빌드 도구 의존성 -->
+    <buildtool_depend>ament_cmake</buildtool_depend>
+    <buildtool_depend>ament_cmake_python</buildtool_depend>
+    <buildtool_depend>launch</buildtool_depend>
+    <buildtool_depend>launch_ros</buildtool_depend>
 
-  <!-- 런타임 의존성 -->
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>cv_bridge</exec_depend>
-  <exec_depend>ultralytics</exec_depend>
-  <exec_depend>vision_msgs</exec_depend>
-  <exec_depend>ament_index_python</exec_depend>
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
+    <!-- 런타임 의존성 -->
+    <exec_depend>rclpy</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
+    <exec_depend>cv_bridge</exec_depend>
+    <exec_depend>ultralytics</exec_depend>
+    <exec_depend>vision_msgs</exec_depend>
+    <exec_depend>ament_index_python</exec_depend>
+    <exec_depend>launch</exec_depend>
+    <exec_depend>launch_ros</exec_depend>
 
-  <export>
-    <build_type>ament_cmake</build_type>
-  </export>
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
 </package>

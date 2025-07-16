@@ -1,39 +1,39 @@
 <?xml version="1.0"?>
 <package format="3">
-  <!-- 패키지 기본 정보 -->
-  <name>pick_and_place</name>
-  <version>0.0.1</version>
-  <description>
-    픽 앤 플레이스 작업을 위한 ROS 2 패키지로, 박스 색상 명령을 수신하고 
-    비전 기반으로 감지된 결과를 통해 로봇 관절을 제어합니다.
-  </description>
+    <!-- 패키지 기본 정보 -->
+    <name>pick_and_place</name>
+    <version>0.0.1</version>
+    <description>
+        픽 앤 플레이스 작업을 위한 ROS 2 패키지로, 박스 색상 명령을 수신하고 
+        비전 기반으로 감지된 결과를 통해 로봇 관절을 제어합니다.
+    </description>
 
-  <!-- 메인테이너 정보 -->
-  <maintainer email="tlacogns@gmail.com">sch</maintainer>
-  <license>Apache-2.0</license>
+    <!-- 메인테이너 정보 -->
+    <maintainer email="tlacogns@gmail.com">sch</maintainer>
+    <license>Apache-2.0</license>
 
-  <!-- 빌드 도구 의존성 -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
+    <!-- 빌드 도구 의존성 -->
+    <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- 컴파일 및 실행 시 필요한 ROS 패키지 의존성 -->
-  <depend>rclcpp</depend>
-  <depend>std_msgs</depend>
-  <depend>vision_msgs</depend>
-  <depend>sensor_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>tf2</depend>
-  <depend>tf2_ros</depend>
-  <depend>tf2_geometry_msgs</depend>
+    <!-- 컴파일 및 실행 시 필요한 ROS 패키지 의존성 -->
+    <depend>rclcpp</depend>
+    <depend>std_msgs</depend>
+    <depend>vision_msgs</depend>
+    <depend>sensor_msgs</depend>
+    <depend>geometry_msgs</depend>
+    <depend>tf2</depend>
+    <depend>tf2_ros</depend>
+    <depend>tf2_geometry_msgs</depend>
 
-  <!-- ros2 launch 에 필요한 런치 라이브러리 -->
-  <depend>launch</depend>
-  <depend>launch_ros</depend>
+    <!-- ros2 launch 에 필요한 런치 라이브러리 -->
+    <depend>launch</depend>
+    <depend>launch_ros</depend>
 
-  <!-- 테스트 및 코드 스타일 관련 의존성 -->
-  <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_common</test_depend>
+    <!-- 테스트 및 코드 스타일 관련 의존성 -->
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_lint_common</test_depend>
 
-  <export>
-    <build_type>ament_cmake</build_type>
-  </export>
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
 </package>

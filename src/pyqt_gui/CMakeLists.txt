@@ -8,15 +8,15 @@ ament_python_install_package(${PROJECT_NAME})
 
 # 2) package.xml 설치
 install(
-  FILES package.xml
-  DESTINATION share/${PROJECT_NAME}
+    FILES package.xml
+    DESTINATION share/${PROJECT_NAME}
 )
 
 # 3) 실행 가능한 스크립트 등록
 install(
-  PROGRAMS
-    scripts/gui_node
-  DESTINATION lib/${PROJECT_NAME}
+    PROGRAMS
+        scripts/gui_node
+    DESTINATION lib/${PROJECT_NAME}
 )
 
 # 4) 메타데이터 생성

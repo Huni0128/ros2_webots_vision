@@ -1,39 +1,39 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>ros2_panda</name>
-  <version>0.1.0</version>
-  <description>Webots Panda 컨트롤러와 ROS 2 통합 (조인트 제어 및 카메라 퍼블리싱 포함)</description>
+    <name>ros2_panda</name>
+    <version>0.1.0</version>
+    <description>Webots Panda 컨트롤러와 ROS 2 통합 (조인트 제어 및 카메라 퍼블리싱 포함)</description>
 
-  <!-- 메인테이너 정보 -->
-  <maintainer email="tlacogns@gmail.com">sch</maintainer>
+    <!-- 메인테이너 정보 -->
+    <maintainer email="tlacogns@gmail.com">sch</maintainer>
 
-  <!-- 라이선스 -->
-  <license>MIT</license>
+    <!-- 라이선스 -->
+    <license>MIT</license>
 
-  <!-- 빌드 도구 의존성 -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
+    <!-- 빌드 도구 의존성 -->
+    <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- 빌드 시 의존 패키지 -->
-  <build_depend>rclcpp</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>tf2_ros</build_depend>
+    <!-- 빌드 시 의존 패키지 -->
+    <build_depend>rclcpp</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>sensor_msgs</build_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>tf2_ros</build_depend>
 
-  <!-- 실행 시 의존 패키지 -->
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>tf2_ros</exec_depend>
+    <!-- 실행 시 의존 패키지 -->
+    <exec_depend>rclcpp</exec_depend>
+    <exec_depend>std_msgs</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
+    <exec_depend>geometry_msgs</exec_depend>
+    <exec_depend>tf2_ros</exec_depend>
 
-  <!-- Launch 파일 및 URDF 참조를 위한 의존성 -->
-  <exec_depend>launch</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>panda_description</exec_depend>
+    <!-- Launch 파일 및 URDF 참조를 위한 의존성 -->
+    <exec_depend>launch</exec_depend>
+    <exec_depend>launch_ros</exec_depend>
+    <exec_depend>robot_state_publisher</exec_depend>
+    <exec_depend>panda_description</exec_depend>
 
-  <export>
-    <build_type>ament_cmake</build_type>
-  </export>
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
 </package>

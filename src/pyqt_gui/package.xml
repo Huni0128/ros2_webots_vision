@@ -1,31 +1,31 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>pyqt_gui</name>
-  <version>0.1.0</version>
-  <description>ROS2 + PyQt5 GUI for camera, joint and gripper visualization</description>
-  <maintainer email="tlacogns@gmail.com">sch</maintainer>
-  <license>Apache License 2.0</license>
+    <name>pyqt_gui</name>
+    <version>0.1.0</version>
+    <description>ROS2 + PyQt5 GUI for camera, joint and gripper visualization</description>
+    <maintainer email="tlacogns@gmail.com">sch</maintainer>
+    <license>Apache License 2.0</license>
 
-  <!-- 빌드 도구 의존성 -->
-  <buildtool_depend>ament_cmake</buildtool_depend>
+    <!-- 빌드 도구 의존성 -->
+    <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- 실행 및 런타임 의존성 -->
-  <exec_depend>ament_cmake</exec_depend>
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>cv_bridge</exec_depend>
-  <exec_depend>python3</exec_depend>
-  <exec_depend>pyqt5</exec_depend>
+    <!-- 실행 및 런타임 의존성 -->
+    <exec_depend>ament_cmake</exec_depend>
+    <exec_depend>rclpy</exec_depend>
+    <exec_depend>sensor_msgs</exec_depend>
+    <exec_depend>std_msgs</exec_depend>
+    <exec_depend>cv_bridge</exec_depend>
+    <exec_depend>python3</exec_depend>
+    <exec_depend>pyqt5</exec_depend>
 
-  <!-- 테스트 의존성 -->
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>pytest</test_depend>
+    <!-- 테스트 의존성 -->
+    <test_depend>ament_copyright</test_depend>
+    <test_depend>ament_flake8</test_depend>
+    <test_depend>ament_pep257</test_depend>
+    <test_depend>pytest</test_depend>
 
-  <export>
-    <!-- CMake 빌드 타입으로 지정 -->
-    <build_type>ament_cmake</build_type>
-  </export>
+    <export>
+        <!-- CMake 빌드 타입으로 지정 -->
+        <build_type>ament_cmake</build_type>
+    </export>
 </package>
